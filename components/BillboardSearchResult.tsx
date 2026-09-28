@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, Ruler, Search } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import type { InventoryItem } from "@/lib/inventory";
@@ -149,6 +150,13 @@ const BillboardCard = ({ item }: { item: InventoryItem }) => {
             {item.size}
           </span>
         </div>
+
+        <Link
+          href={`/billboards/${item.id}?status=${item.status}`}
+          className="mt-4 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-[#DA1C21] transition-colors hover:text-[#0A0A0A]"
+        >
+          View This Space
+        </Link>
       </div>
     </div>
   );

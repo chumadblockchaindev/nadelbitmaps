@@ -241,10 +241,10 @@ const BillboardSlide = ({ item }: { item: InventoryItem }) => {
         </div>
 
         <Link
-          href="/contact"
+          href={`/billboards/${item.id}?status=${item.status}`}
           className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-[#DA1C21] transition-colors hover:text-[#0A0A0A]"
         >
-          Book This Space
+          View This Space
         </Link>
       </div>
     </div>

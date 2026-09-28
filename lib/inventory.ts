@@ -29,7 +29,18 @@ export interface InventoryQuery {
   size?: string;
 }
 
+export interface InventoryDetail {
+  location: string;
+  type: InventoryType;
+  subtype: InventorySubtype;
+  size: string;
+  imagePath: string;
+  imageUrl: string;
+}
+
 const INVENTORY_API_BASE_URL = "https://nadelhub.onrender.com";
+
+export const WHATSAPP_BOOKING_NUMBER = "2348037245237";
 
 export async function fetchInventory(
   query: InventoryQuery = {}
@@ -52,4 +63,19 @@ export async function fetchInventory(
   }
 
   return response.json();
+}
+
+// Undocumented endpoint (not in the published API reference) discovered by
+// convention; returns a single-element array, or [] when the id doesn't exist.
+export async function fetchInventoryById(
+  id: string | number
+): Promise<InventoryDetail | null> {
+  const response = await fetch(`${INVENTORY_API_BASE_URL}/api/inventory/${id}`);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch billboard (${response.status})`);
+  }
+
+  const data: InventoryDetail[] = await response.json();
+  return data[0] ?? null;
 }
