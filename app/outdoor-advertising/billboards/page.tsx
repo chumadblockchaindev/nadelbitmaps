@@ -1,3 +1,4 @@
+import AvailableBillboards from '@/components/AvailableBillboards'
 import ConnectWithUs from '@/components/ConnectWithUs'
 import SearchBillboard from '@/components/SearchBillboard'
 import ServicesAbout from '@/components/ServicesAbout'
@@ -45,6 +46,7 @@ const page = () => {
           ]}
       />
       <SearchBillboard />
+      <AvailableBillboards />
       <ConnectWithUs />
     </>
   )
