@@ -2,14 +2,59 @@
 
 import React, { useState } from "react";
 import { Search, MapPin } from "lucide-react";
+import BillboardSearchResult from "@/components/BillboardSearchResult";
+import { fetchInventory, type InventoryItem } from "@/lib/inventory";
+
+const RESULTS_PER_PAGE = 9;
 
 const SearchBillboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
+  const [results, setResults] = useState<InventoryItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [numberOfPages, setNumberOfPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const runSearch = async (location: string, page: number) => {
+    setLoading(true);
+    setError(null);
+    setHasSearched(true);
+
+    try {
+      const data = await fetchInventory({
+        location: location || undefined,
+        page,
+        limit: RESULTS_PER_PAGE,
+      });
+      setResults(data.results);
+      setCurrentPage(data.currentPage);
+      setNumberOfPages(data.numberOfPages);
+    } catch (err) {
+      setResults([]);
+      setError(err instanceof Error ? err.message : "Unable to load results.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your search logic here
-    console.log("Searching for:", searchQuery);
+    const trimmed = searchQuery.trim();
+    setSubmittedQuery(trimmed);
+    runSearch(trimmed, 1);
+  };
+
+  const handleQuickLocation = (location: string) => {
+    setSearchQuery(location);
+    setSubmittedQuery(location);
+    runSearch(location, 1);
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > numberOfPages) return;
+    runSearch(submittedQuery, page);
   };
 
   return (
@@ -67,7 +112,8 @@ const SearchBillboard = () => {
 
             <button
               type="submit"
-              className="absolute right-2 rounded-full bg-[#DA1C21] px-8 py-3.5 font-black uppercase tracking-[0.18em] text-[#ffff] transition-all duration-300 hover:bg-white hover:text-slate-900"
+              disabled={loading}
+              className="absolute right-2 rounded-full bg-[#DA1C21] px-8 py-3.5 font-black uppercase tracking-[0.18em] text-[#ffff] transition-all duration-300 hover:bg-white hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Search
             </button>
@@ -79,10 +125,10 @@ const SearchBillboard = () => {
           <span className="text-xs font-medium uppercase tracking-[0.15em] text-gray-500">
             Popular:
           </span>
-          {["Owerri","Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"].map((location) => (
+          {["Owerri", "Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"].map((location) => (
             <button
               key={location}
-              onClick={() => setSearchQuery(location)}
+              onClick={() => handleQuickLocation(location)}
               className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition-all duration-200 hover:border-[#DA1C21] hover:text-[#DA1C21]"
             >
               <MapPin size={14} />
@@ -91,27 +137,41 @@ const SearchBillboard = () => {
           ))}
         </div>
 
+        {/* Search Results */}
+        <BillboardSearchResult
+          results={results}
+          loading={loading}
+          error={error}
+          hasSearched={hasSearched}
+          query={submittedQuery}
+          currentPage={currentPage}
+          numberOfPages={numberOfPages}
+          onPageChange={handlePageChange}
+        />
+
         {/* Stats */}
-        <div className="mt-16 grid grid-cols-3 gap-8 border-t border-gray-100 pt-12">
-          <div className="text-center">
-            <p className="text-3xl font-black text-[#DA1C21]">500+</p>
-            <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
-              Billboard Locations
-            </p>
+        {!hasSearched && (
+          <div className="mt-16 grid grid-cols-3 gap-8 border-t border-gray-100 pt-12">
+            <div className="text-center">
+              <p className="text-3xl font-black text-[#DA1C21]">500+</p>
+              <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
+                Billboard Locations
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl font-black text-[#DA1C21]">50+</p>
+              <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
+                Cities Covered
+              </p>
+            </div>
+            <div className="text-center">
+              <p className="text-3xl font-black text-[#DA1C21]">10M+</p>
+              <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
+                Monthly Reach
+              </p>
+            </div>
           </div>
-          <div className="text-center">
-            <p className="text-3xl font-black text-[#DA1C21]">50+</p>
-            <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
-              Cities Covered
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-black text-[#DA1C21]">10M+</p>
-            <p className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
-              Monthly Reach
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );

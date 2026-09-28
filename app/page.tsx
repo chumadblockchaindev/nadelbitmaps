@@ -1,3 +1,4 @@
+import AvailableBillboards from '@/components/AvailableBillboards'
 import ConnectWithUs from '@/components/ConnectWithUs'
 import HomeHero from '@/components/HomeHero'
 import ProductsServicesSlider from '@/components/ProductsAndServices'
@@ -12,6 +13,7 @@ const page = () => {
       <HomeHero />
       <WhoWeAre />
       <SearchBillboard />
+      <AvailableBillboards />
       <ProductsServicesSlider />
       <WhatClientsSay />
       <ConnectWithUs />
